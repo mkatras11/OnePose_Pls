@@ -1,0 +1,6 @@
+Collecting trimesh
+  Downloading trimesh-3.21.5-py3-none-any.whl (680 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 680.8/680.8 kB 7.7 MB/s eta 0:00:00
+Requirement already satisfied: numpy in /home/mikek11/anaconda3/envs/ptorch/lib/python3.7/site-packages (from trimesh) (1.21.6)
+Installing collected packages: trimesh
+Successfully installed trimesh-3.21.5

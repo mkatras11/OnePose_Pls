@@ -36,30 +36,32 @@ def sfm(cfg):
         object_names = os.listdir(data_dirs)[:top_k_obj]
         data_dirs_list = []
 
-        if cfg.dataset.ids is not None:
-            # Use data ids:
-            id2full_name = {name[:4]: name for name in object_names if "-" in name}
-            object_names = [
-                id2full_name[id] for id in cfg.dataset.ids if id in id2full_name
-            ]
-
-        for object_name in object_names:
-            if "-" not in object_name:
-                continue
-
-            if object_name in exception_obj_name_list:
-                continue
-            sequence_names = sorted(os.listdir(osp.join(data_dirs, object_name)))
-            sequence_names = [
-                sequence_name
-                for sequence_name in sequence_names
-                if "-" in sequence_name
-            ][:num_seq]
-            data_dirs_list.append(
-                " ".join([osp.join(data_dirs, object_name)] + sequence_names)
-            )
-
-        data_dirs = data_dirs_list
+        #if cfg.dataset.ids is not None:
+        #    # Use data ids:
+        #    id2full_name = {name[:4]: name for name in object_names if "-" in name}
+        #    object_names = [
+        #        id2full_name[id] for id in cfg.dataset.ids if id in id2full_name
+        #    ]
+        object_names = cfg.dataset.ids
+            
+        #for object_name in object_names:
+            #if "-" not in object_name:
+            #    continue
+            #if object_name in exception_obj_name_list:
+            #    continue
+            #sequence_names = sorted(os.listdir(osp.join(data_dirs, object_name)))  
+            #sequence_names = [
+            #    sequence_name
+            #    for sequence_name in sequence_names
+            #    if "-" in sequence_name
+            #][:num_seq]
+            #data_dirs_list.append(
+            #    " ".join([osp.join(data_dirs, object_name)] + sequence_names)
+            #)
+        data_dirs_list = data_dirs + ' ' + str(*object_names)
+                
+        data_dirs = [data_dirs_list]
+        #data_dirs = data_dirs_list
 
     if not cfg.use_global_ray:
         sfm_worker(data_dirs, cfg)
@@ -91,12 +93,11 @@ def sfm(cfg):
 def sfm_worker(data_dirs, cfg, worker_id=0, pba=None):
     logger.info(
         f"Worker: {worker_id} will process: {[(data_dir.split(' ')[0]).split('/')[-1][:4] for data_dir in data_dirs]}, total: {len(data_dirs)} objects"
-    )
+    ) 
     data_dirs = tqdm(data_dirs) if pba is None else data_dirs
     for data_dir in data_dirs:
         logger.info(f"Processing {data_dir}.")
         root_dir, sub_dirs = data_dir.split(" ")[0], data_dir.split(" ")[1:]
-
         img_lists = []
         ext_bag = [".png", ".jpg"]
         for sub_dir in sub_dirs:
@@ -127,6 +128,7 @@ def sfm_worker(data_dirs, cfg, worker_id=0, pba=None):
         outputs_dir_root = cfg.dataset.outputs_dir
 
         sfm_core(cfg, img_lists, outputs_dir_root, obj_name)
+        #postprocess_old(cfg, img_lists, root_dir, outputs_dir_root, obj_name)
         postprocess(cfg, img_lists, root_dir, sub_dirs, outputs_dir_root, obj_name)
 
         logger.info(f"Finish Processing {data_dir}.")
@@ -134,7 +136,6 @@ def sfm_worker(data_dirs, cfg, worker_id=0, pba=None):
             pba.update.remote(1)
     logger.info(f"Worker{worker_id} finish!")
     return None
-
 
 @ray.remote
 def sfm_worker_ray_wrapper(*args, **kwargs):
@@ -227,6 +228,7 @@ def sfm_core(cfg, img_lists, outputs_dir_root, obj_name):
             use_ray=cfg.use_local_ray,
             verbose=cfg.verbose
         )
+        #input("ok")
         generate_empty.generate_model(img_lists, empty_dir)
 
         if cfg.use_global_ray:
@@ -294,8 +296,8 @@ def sfm_core(cfg, img_lists, outputs_dir_root, obj_name):
             )
             if state == False:
                 logger.error("Coarse reconstruction failed!")
-    else:
-        raise NotImplementedError
+    #else:
+        #raise NotImplementedError
 
 def postprocess(cfg, img_lists, root_dir, sub_dirs, outputs_dir_root, obj_name):
     """ Filter points and average feature"""
@@ -393,7 +395,31 @@ def postprocess(cfg, img_lists, root_dir, sub_dirs, outputs_dir_root, obj_name):
         use_ray=cfg.use_local_ray,
         verbose=cfg.verbose,
     )
+    
+def postprocess_old(cfg, img_lists, root_dir, outputs_dir_root, obj_name):
+    """ Filter points and average feature """
+    from src.sfm_utils.postprocess import filter_points, feature_process, filter_tkl
 
+    bbox_path = osp.join(root_dir, "box3d_corners.txt")
+    
+    # Construct output directory structure:
+    outputs_dir  = osp.join(outputs_dir_root, 'outputs' + '_' + cfg.match_type + '_' + cfg.network.detection + '_' + cfg.network.matching, obj_name)
+    feature_out  = osp.join(outputs_dir, f'feats-{cfg.network.detection}.h5') #_coarse
+    deep_sfm_dir = osp.join(outputs_dir, 'sfm_ws')
+    model_path   = osp.join(deep_sfm_dir, 'model') #_filted_bbox
+
+    # Select feature track length to limit the number of 3D points below the 'max_num_kp3d' threshold:
+    track_length, points_count_list = filter_tkl.get_tkl(model_path, thres=cfg.dataset.max_num_kp3d, show=False) 
+    
+    filter_tkl.vis_tkl_filtered_pcds(model_path, points_count_list, track_length, outputs_dir) # For visualization only
+    
+    # Leverage the selected feature track length threshold and 3D BBox to filter 3D points:
+    xyzs, points_idxs = filter_points.filter_3d(model_path, track_length, bbox_path)
+    # Merge 3d points by distance between points
+    merge_xyzs, merge_idxs = filter_points.merge(xyzs, points_idxs, dist_threshold=1e-3) 
+
+    # Save features of the filtered point cloud:
+    feature_process.get_kpt_ann(cfg, img_lists, feature_out, outputs_dir, merge_idxs, merge_xyzs)
 
 @hydra.main(config_path="configs/", config_name="config.yaml")
 def main(cfg: DictConfig):
