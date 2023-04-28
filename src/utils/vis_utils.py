@@ -91,7 +91,7 @@ def save_demo_image(pose_pred, K, image_path, box3d, draw_box=True, save_path=No
 
     if draw_box:
         reproj_box_2d = reproj(K, pose_pred, box3d)
-        draw_3d_box(image_full, reproj_box_2d, color='b', linewidth=10)
+        draw_3d_box(image_full, reproj_box_2d, color='g', linewidth=3)
     
     if save_path is not None:
         Path(save_path).parent.mkdir(exist_ok=True, parents=True)

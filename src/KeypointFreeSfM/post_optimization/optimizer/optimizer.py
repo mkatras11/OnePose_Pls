@@ -201,14 +201,17 @@ class Optimizer(nn.Module):
                 "mode": self.residual_mode,
             }
 
+            #from submodules.DeepLM.TorchLM.solver import Solve
+            #input("okkkkkkkkkkkkkkk")
+
             try:
-                from submodules.DeepLM import Solve as SecondOrderSolve
+                from submodules.DeepLM.TorchLM.solver import Solve as SecondOrderSolve
             except:
                 self.solver_type = "FirstOrder"
                 logger.error(f"Failed to import DeepLM module. Use our first-order optimizer instead. Please check whether installation is correct!")
 
             if self.solver_type == "SecondOrder":
-                from submodules.DeepLM import Solve as SecondOrderSolve
+                from submodules.DeepLM.TorchLM.solver import Solve as SecondOrderSolve
                 # Use DeepLM lib:
                 SecondOrderSolve(
                     variables=variables,

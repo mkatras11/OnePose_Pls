@@ -11,7 +11,7 @@ overwrite_coarse: True
 overwrite_fine: True
 
 use_global_ray: False
-use_local_ray: True
+use_local_ray: False
 
 dataset:
   max_num_kp3d: 15000
