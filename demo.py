@@ -148,8 +148,8 @@ def inference_core(cfg, data_root, seq_dir, sfm_model_dir):
         # Visualize:
         vis_utils.save_demo_image(
             pose_pred,
-            K, #K
-            image_path= query_image_path.replace('color', 'color_'),
+            K, #K_crop
+            image_path= query_image_path.replace('color', 'color_full'),
             box3d=bbox3d,
             draw_box=len(inliers) > 20,
             save_path=osp.join(paths["vis_box_dir"], f"{id}.jpg"),

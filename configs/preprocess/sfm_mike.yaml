@@ -2,7 +2,7 @@
 
 type: sfm
 work_dir: ${hydra:runtime.cwd}
-data_base_dir: "${work_dir}/data/datasets/cm_30hz_exp2_res_box012_crop2"
+data_base_dir: "${work_dir}/data/datasets/BoxNotxtData_annotate"
 output_base_dir: "data/datasets/sfm_output"
 
 match_type: "softmax"

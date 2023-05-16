@@ -2,8 +2,8 @@
 
 type: inference
 
-data_base_dir: /home/mikek11/projects/OnePose_Pls/data/datasets/cf_30hz_exp2_res_multibox_Box012_crop2 files
-sfm_base_dir: /home/mikek11/projects/OnePose_Pls/data/datasets/sfm_output/outputs_softmax_loftr_loftr/cm_30hz_exp2_res_box012_crop2
+data_base_dir: /home/mikek11/projects/OnePose_Pls/data/datasets/BoxNotxtData_test files
+sfm_base_dir: /home/mikek11/projects/OnePose_Pls/data/datasets/sfm_output/outputs_softmax_loftr_loftr/BoxNotxtData_annotate
 
 model:
   pretrained_ckpt: weight/OnePosePlus_model.ckpt
