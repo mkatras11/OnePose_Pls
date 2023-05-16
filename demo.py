@@ -144,10 +144,11 @@ def inference_core(cfg, data_root, seq_dir, sfm_model_dir):
         pred_poses[id] = [pose_pred, inliers]
         
         eval_poses.append(query_pose_error(pose_pred, pose_gt, unit='cm'))
+        poses = [pose_gt, pose_pred]
 
         # Visualize:
         vis_utils.save_demo_image(
-            pose_pred,
+            poses,
             K, #K_crop
             image_path= query_image_path.replace('color', 'color_full'),
             box3d=bbox3d,
