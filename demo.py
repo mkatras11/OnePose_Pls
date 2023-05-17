@@ -9,6 +9,7 @@ import glob
 import numpy as np
 import natsort
 import torch
+import matplotlib.pyplot as plt
 
 from src.utils import data_utils
 from src.utils import vis_utils
@@ -158,6 +159,27 @@ def inference_core(cfg, data_root, seq_dir, sfm_model_dir):
         
     eval_poses = np.array(eval_poses)
     print(np.mean(eval_poses, axis=0))
+
+    # plot pose error curves
+    plt.figure()
+    plt.plot(eval_poses[:,0])
+    plt.xlabel('Frame')
+    plt.ylabel('Error (deg)')
+    plt.title('Pose estimation rotation error')
+    plt.savefig(osp.join(paths["data_dir"], f"rotation_error.jpg"))
+    plt.show()
+
+    plt.figure()
+    plt.plot(eval_poses[:,1])
+    plt.xlabel('Frame')
+    plt.ylabel('Error (cm)')
+    plt.title('Pose estimation translation error')
+    plt.savefig(osp.join(paths["data_dir"], f"translation_error.jpg"))
+    plt.show()
+    
+
+
+
     
     # Output video to visualize estimated poses:
     logger.info(f"Generate demo video begin...")
