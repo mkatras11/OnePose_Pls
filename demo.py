@@ -160,23 +160,15 @@ def inference_core(cfg, data_root, seq_dir, sfm_model_dir):
     eval_poses = np.array(eval_poses)
     print(np.mean(eval_poses, axis=0))
 
-    # plot pose error curves
-    plt.figure()
-    plt.plot(eval_poses[:,0])
-    plt.xlabel('Frame')
-    plt.ylabel('Error (deg)')
-    plt.title('Pose estimation rotation error')
-    plt.savefig(osp.join(paths["data_dir"], f"rotation_error.jpg"))
-    plt.show()
-
-    plt.figure()
-    plt.plot(eval_poses[:,1])
-    plt.xlabel('Frame')
-    plt.ylabel('Error (cm)')
-    plt.title('Pose estimation translation error')
-    plt.savefig(osp.join(paths["data_dir"], f"translation_error.jpg"))
-    plt.show()
-    
+    # Create the pose error plots
+    plt.figure(figsize=(10, 5))
+    plt.plot(eval_poses[:, 0], label="rotation error (deg)")
+    plt.plot(eval_poses[:, 1]*100, label="translation error (cm)")
+    plt.legend()
+    plt.xlabel("Frame")
+    plt.ylabel("Error")
+    plt.title("Pose estimation error")
+    plt.savefig(osp.join(paths["data_dir"], f"pose_error.jpg"))
 
 
 
