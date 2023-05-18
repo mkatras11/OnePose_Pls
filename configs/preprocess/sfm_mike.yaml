@@ -2,7 +2,7 @@
 
 type: sfm
 work_dir: ${hydra:runtime.cwd}
-data_base_dir: "${work_dir}/data/datasets/BoxNotxtData_annotate"
+data_base_dir: "${work_dir}/data/datasets/CrateData_annotate"
 output_base_dir: "data/datasets/sfm_output"
 
 match_type: "softmax"

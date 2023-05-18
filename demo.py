@@ -158,7 +158,7 @@ def inference_core(cfg, data_root, seq_dir, sfm_model_dir):
         )
         
     eval_poses = np.array(eval_poses)
-    print(np.mean(eval_poses, axis=0))
+    print(np.nanmean(eval_poses, axis=0))
 
     # Create the pose error plots
     plt.figure(figsize=(10, 5))
