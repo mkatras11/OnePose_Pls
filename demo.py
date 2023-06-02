@@ -181,7 +181,9 @@ def inference_core(cfg, data_root, seq_dir, sfm_model_dir):
     plt.xlabel("Frame")
     plt.ylabel("Error")
     plt.title("Pose estimation error")
-    plt.savefig(osp.join(paths["data_dir"], f"pose_error.jpg"))
+    plt.show()
+    #save plot as pdf
+    plt.savefig(osp.join(paths["data_dir"], f"pose_error.pdf"), format='pdf')
 
 
 
