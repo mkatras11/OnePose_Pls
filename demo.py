@@ -68,7 +68,7 @@ def get_default_paths(cfg, data_root, data_dir, sfm_model_dir):
     }
     return img_lists, paths
 
-def inference_core(cfg, data_root, seq_dir, sfm_model_dir):
+def inference_core(cfg, data_root, seq_dir, sfm_model_dir, i=0):
     img_list, paths = get_default_paths(cfg, data_root, seq_dir, sfm_model_dir)
     dataset = OnePosePlusInferenceDataset(
         paths['sfm_dir'],
@@ -142,6 +142,33 @@ def inference_core(cfg, data_root, seq_dir, sfm_model_dir):
         pose_pred, _, inliers, _ = ransac_PnP(K_crop, mkpts_query, mkpts_3d, scale=1000, pnp_reprojection_error=7, img_hw=[512,512], use_pycolmap_ransac=True)
         print(time() - t1)
 
+        # # Evaluate 2D-3D matching results:
+        # from matplotlib.patches import ConnectionPatch
+        # print(mkpts_3d.shape, mkpts_query.shape, inliers.shape)              
+        # if i==126:
+        #     fig = plt.figure(figsize=(10,5))
+
+        #     ax2 = fig.add_subplot(121)
+        #     ax1 = fig.add_subplot(122)
+        #     ax1.imshow(query_image[0, 0].cpu().numpy())
+        #     ax1.scatter(mkpts_query[:, 0], mkpts_query[:, 1], c='r', s=3)
+        #     ax2.scatter(mkpts_3d[:, 0], mkpts_3d[:, 1], c='b', s=3)
+    
+        #     ax1.axis('off')
+        #     ax2.axis('off')
+        #     ax1.axis('equal')
+        #     ax2.axis('equal')
+
+        #     ax1.set_title('Query image matched keypoints')
+        #     ax2.set_title('Point cloud matched keypoints')
+
+        #     for j in range(len(inliers)):
+        #         # use ConnectionPatch to draw lines between points in different axes
+        #         con = ConnectionPatch(xyA=(mkpts_query[inliers[j], 0], mkpts_query[inliers[j], 1]), xyB=(mkpts_3d[inliers[j], 0], mkpts_3d[inliers[j], 1]), coordsA="data", coordsB="data", axesA=ax1, axesB=ax2, color="green", linewidth=0.5)
+        #         ax1.add_artist(con)
+        #     plt.show()
+        
+        # i+=1
         pred_poses[id] = [pose_pred, inliers]
         
         eval_poses.append(query_pose_error(pose_pred, pose_gt, unit='cm'))
@@ -160,28 +187,41 @@ def inference_core(cfg, data_root, seq_dir, sfm_model_dir):
     eval_poses = np.array(eval_poses)
     print("Rotation and translation error:", np.nanmean(eval_poses, axis=0))
 
-    # Calculate the 5cm-5deg, 3cm-3deg and 1cm-1deg metric:
+    # # Calculate the 5cm-5deg, 3cm-3deg and 1cm-1deg metric:
+    # cm_deg_list = []
+    # for cm, deg in [(5, 5), (3, 3), (1, 1)]:
+    #     cm_deg_list.append(
+    #         np.mean(
+    #             np.logical_and(
+    #                 eval_poses[:, 0] < deg, eval_poses[:, 1] * 100 < cm
+    #             ).astype(np.float)
+    #         )
+    #     )
+    # print("5cm-5deg, 3cm-3deg and 1cm-1deg metric:", cm_deg_list)
+
+    # Calculate the 5cm-5deg, 3cm-3deg and 1cm-1deg metric but count 180deg as correct:
     cm_deg_list = []
     for cm, deg in [(5, 5), (3, 3), (1, 1)]:
         cm_deg_list.append(
             np.mean(
                 np.logical_and(
-                    eval_poses[:, 0] < deg, eval_poses[:, 1] * 100 < cm
+                    np.minimum(eval_poses[:, 0], 180 - eval_poses[:, 0]) < deg,
+                    eval_poses[:, 1] * 100 < cm,
                 ).astype(np.float)
             )
         )
     print("5cm-5deg, 3cm-3deg and 1cm-1deg metric:", cm_deg_list)
 
-
     # Create the pose error plots
     plt.figure(figsize=(10, 5))
-    plt.plot(eval_poses[:, 0], label="rotation error (deg)")
+    # plt.plot( np.minimum(eval_poses[:, 0], 180 - eval_poses[:, 0]), 'b.' , label="rotation error (deg)")
+    # plt.plot(eval_poses[:, 1]*100, 'r.', label="translation error (cm)")
+    plt.plot( np.minimum(eval_poses[:, 0], 180 - eval_poses[:, 0]), label="rotation error (deg)")
     plt.plot(eval_poses[:, 1]*100, label="translation error (cm)")
     plt.legend()
     plt.xlabel("Frame")
     plt.ylabel("Error")
     plt.title("Pose estimation error")
-    plt.show()
     #save plot as pdf
     plt.savefig(osp.join(paths["data_dir"], f"pose_error.pdf"), format='pdf')
 
