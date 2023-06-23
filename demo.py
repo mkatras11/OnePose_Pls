@@ -187,18 +187,6 @@ def inference_core(cfg, data_root, seq_dir, sfm_model_dir, i=0):
     eval_poses = np.array(eval_poses)
     print("Rotation and translation error:", np.nanmean(eval_poses, axis=0))
 
-    # # Calculate the 5cm-5deg, 3cm-3deg and 1cm-1deg metric:
-    # cm_deg_list = []
-    # for cm, deg in [(5, 5), (3, 3), (1, 1)]:
-    #     cm_deg_list.append(
-    #         np.mean(
-    #             np.logical_and(
-    #                 eval_poses[:, 0] < deg, eval_poses[:, 1] * 100 < cm
-    #             ).astype(np.float)
-    #         )
-    #     )
-    # print("5cm-5deg, 3cm-3deg and 1cm-1deg metric:", cm_deg_list)
-
     # Calculate the 5cm-5deg, 3cm-3deg and 1cm-1deg metric but count 180deg as correct:
     cm_deg_list = []
     for cm, deg in [(5, 5), (3, 3), (1, 1)]:
