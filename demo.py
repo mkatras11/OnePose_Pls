@@ -142,10 +142,15 @@ def inference_core(cfg, data_root, seq_dir, sfm_model_dir, i=0):
         pose_pred, _, inliers, _ = ransac_PnP(K_crop, mkpts_query, mkpts_3d, scale=1000, pnp_reprojection_error=7, img_hw=[512,512], use_pycolmap_ransac=True)
         print(time() - t1)
 
+        pred_poses[id] = [pose_pred, inliers]
+        
+        eval_poses.append(query_pose_error(pose_pred, pose_gt, unit='cm'))
+        poses = [pose_gt, pose_pred]
+
         # # Evaluate 2D-3D matching results:
         # from matplotlib.patches import ConnectionPatch
-        # print(mkpts_3d.shape, mkpts_query.shape, inliers.shape)              
-        # if i==126:
+        # print(mkpts_3d.shape, mkpts_query.shape, inliers.shape)            
+        # if eval_poses[i][0] > 80 and eval_poses[i][0] < 100:
         #     fig = plt.figure(figsize=(10,5))
 
         #     ax2 = fig.add_subplot(121)
@@ -169,10 +174,6 @@ def inference_core(cfg, data_root, seq_dir, sfm_model_dir, i=0):
         #     plt.show()
         
         # i+=1
-        pred_poses[id] = [pose_pred, inliers]
-        
-        eval_poses.append(query_pose_error(pose_pred, pose_gt, unit='cm'))
-        poses = [pose_gt, pose_pred]
 
         # Visualize:
         vis_utils.save_demo_image(

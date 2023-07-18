@@ -238,14 +238,14 @@ def data_process_anno(data_dir, downsample_rate=1, hw=512):
 
     parse_video(paths, downsample_rate, bbox_3d_homo, hw=hw)
 
-    # Make fake data for demo annotate video without BA refinement:
-    if osp.exists(osp.join(osp.dirname(paths['intrin_dir']), 'intrin_ba')):
-        os.system(f"rm -rf {osp.join(osp.dirname(paths['intrin_dir']), 'intrin_ba')}")
-    os.system(f"ln -s {paths['intrin_dir']} {osp.join(osp.dirname(paths['intrin_dir']), 'intrin_ba')}")
+    # # Make fake data for demo annotate video without BA refinement:
+    # if osp.exists(osp.join(osp.dirname(paths['intrin_dir']), 'intrin_ba')):
+    #     os.system(f"rm -rf {osp.join(osp.dirname(paths['intrin_dir']), 'intrin_ba')}")
+    # os.system(f"ln -s {paths['intrin_dir']} {osp.join(osp.dirname(paths['intrin_dir']), 'intrin_ba')}")
 
-    if osp.exists(osp.join(osp.dirname(paths['out_pose_dir']), 'poses_ba')):
-        os.system(f"rm -rf {osp.join(osp.dirname(paths['out_pose_dir']), 'poses_ba')}")
-    os.system(f"ln -s {paths['out_pose_dir']} {osp.join(osp.dirname(paths['out_pose_dir']), 'poses_ba')}")
+    # if osp.exists(osp.join(osp.dirname(paths['out_pose_dir']), 'poses_ba')):
+    #     os.system(f"rm -rf {osp.join(osp.dirname(paths['out_pose_dir']), 'poses_ba')}")
+    # os.system(f"ln -s {paths['out_pose_dir']} {osp.join(osp.dirname(paths['out_pose_dir']), 'poses_ba')}")
 
 def data_process_test(data_dir, downsample_rate=1):
     paths = get_test_default_path(data_dir)

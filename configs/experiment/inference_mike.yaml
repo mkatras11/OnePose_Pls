@@ -2,8 +2,8 @@
 
 type: inference
 
-data_base_dir: /home/mikek11/projects/OnePose_Pls/data/datasets/cf_30hz_exp2_res_multibox_Box012_crop2 files
-sfm_base_dir: /home/mikek11/projects/OnePose_Pls/data/datasets/sfm_output/outputs_softmax_loftr_loftr/cm_30hz_exp2_res_box012_crop2
+data_base_dir: /home/mikek11/projects/OnePose_Pls/data/datasets/DuckData_test files
+sfm_base_dir: /home/mikek11/projects/OnePose_Pls/data/datasets/sfm_output/outputs_softmax_loftr_loftr/Duckiphone2Data_annotate
 
 model:
   pretrained_ckpt: weight/OnePosePlus_model.ckpt
@@ -38,7 +38,7 @@ model:
       type: "LoFTR"
       d_model: 256
       d_ffm: 128
-      nhead: 8
+      nhead: 2
       layer_names: ["self", "cross"]
       layer_iter_n: 3
       dropout: 0.
@@ -53,7 +53,7 @@ model:
 
     coarse_matching:
       type: "dual-softmax"
-      thr: 0.1
+      thr: 0.0001
       feat_norm_method: "sqrt_feat_dim"
       border_rm: 2
 
@@ -74,7 +74,7 @@ model:
       # Fine module
       type: "LoFTR"
       d_model: 128
-      nhead: 8
+      nhead: 2
       layer_names: ["self", "cross"]
       layer_iter_n: 1
       dropout: 0.0
@@ -98,10 +98,10 @@ datamodule:
     # 3D part
     shape3d_val: 7000
     load_3d_coarse: True
-    pad3D: False # Use all 3D points
+    pad3D: True # Use all 3D points
 
     # 2D part
-    img_pad: False
+    img_pad: True
     img_resize: [512, 512]
     df: 8
     coarse_scale: 0.125
