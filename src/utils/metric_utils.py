@@ -112,10 +112,15 @@ def query_pose_error(pose_pred, pose_gt, unit='m'):
         raise NotImplementedError
 
     rotation_diff = np.dot(pose_pred[:, :3], pose_gt[:, :3].T)
+    rotation_diff_symm = np.dot(pose_pred[:, :3], np.dot(pose_gt[:, :3], np.diag([-1, -1, 1])).T)
     trace = np.trace(rotation_diff)
+    trace_symm = np.trace(rotation_diff_symm)
     trace = trace if trace <= 3 else 3
+    trace_symm = trace_symm if trace_symm <= 3 else 3
     angular_distance = np.rad2deg(np.arccos((trace - 1.0) / 2.0))
-    return angular_distance, translation_distance
+    angular_distance_symm = np.rad2deg(np.arccos((trace_symm - 1.0) / 2.0))
+    angular_distance_tot = np.minimum(angular_distance, angular_distance_symm)
+    return angular_distance_tot, translation_distance
 
 
 def ransac_PnP(

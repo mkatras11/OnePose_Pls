@@ -2,8 +2,8 @@
 
 type: inference
 
-data_base_dir: /home/mikek11/projects/OnePose_Pls/data/datasets/DuckData_test files
-sfm_base_dir: /home/mikek11/projects/OnePose_Pls/data/datasets/sfm_output/outputs_softmax_loftr_loftr/Duckiphone2Data_annotate
+data_base_dir: /home/mikek11/projects/OnePose_Pls/data/datasets/CrateData_test files
+sfm_base_dir: /home/mikek11/projects/OnePose_Pls/data/datasets/sfm_output/outputs_softmax_loftr_loftr/CrateData_annotate
 
 model:
   pretrained_ckpt: weight/OnePosePlus_model.ckpt

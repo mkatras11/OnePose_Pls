@@ -194,7 +194,7 @@ def inference_core(cfg, data_root, seq_dir, sfm_model_dir, i=0):
         cm_deg_list.append(
             np.mean(
                 np.logical_and(
-                    np.minimum(eval_poses[:, 0], 180 - eval_poses[:, 0]) < deg,
+                    eval_poses[:, 0] < deg,
                     eval_poses[:, 1] * 100 < cm,
                 ).astype(np.float)
             )
@@ -203,9 +203,9 @@ def inference_core(cfg, data_root, seq_dir, sfm_model_dir, i=0):
 
     # Create the pose error plots
     plt.figure(figsize=(10, 5))
-    # plt.plot( np.minimum(eval_poses[:, 0], 180 - eval_poses[:, 0]), 'b.' , label="rotation error (deg)")
+    # plt.plot(eval_poses[:, 0], 'b.' , label="rotation error (deg)")
     # plt.plot(eval_poses[:, 1]*100, 'r.', label="translation error (cm)")
-    plt.plot( np.minimum(eval_poses[:, 0], 180 - eval_poses[:, 0]), label="rotation error (deg)")
+    plt.plot(eval_poses[:, 0], label="rotation error (deg)")
     plt.plot(eval_poses[:, 1]*100, label="translation error (cm)")
     plt.legend()
     plt.xlabel("Frame")
